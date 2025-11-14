@@ -1,0 +1,68 @@
+pipeline{
+    parameters{
+        choice(name: 'terraformAction',choices: ['apply','destroy'],description: 'Choose your terraform action to perform')
+    }
+
+    environment {
+        AWS_ACCESS_KEY_ID = credentials('AWS_ACCESS_KEY_ID')
+        AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
+    }
+
+    agent any
+
+    stages{
+        stage('checkout'){
+            steps{
+                script { 
+                        git branch: 'main',url:'https://github.com/ManojKRISHNAPPA/Terraform-Zero-Hero-Series-ITkannadigaru.git'
+                    }
+                }
+            }
+        }
+    
+        stage('Plan'){
+            steps{
+                // Navigate into the checked-out directory and then into the Project-1 subdirectory
+                sh 'cd 02-s3-bucket; terraform init' 
+                sh 'cd 02-s3-bucket; terraform plan -out tfplan'
+                sh 'cd 02-s3-bucket; terraform show -no-color tfplan >> ../tfplan.txt' // Write plan to parent dir for easier access
+            }
+        }
+    
+        stage('approval'){
+            steps{
+                script {
+                    // Read the plan file from the workspace root or the checked out directory (using iac-repo/tfplan.txt)
+                    def plan = readFile 'iac-repo/tfplan.txt'
+                    
+       
+                    input(
+                        message: "Do you want to proceed with terraform action..?",
+                        parameters: [
+                            text(name: 'planReview', description: 'Can you review your code one more time', defaultValue: plan)
+                        ]
+                    )
+                }
+            }
+        }
+    
+        stage('Apply or Destroy'){
+            when{
+                expression{
+                    return params.terraformAction == 'apply' || params.terraformAction == 'destroy'
+                }
+            }
+    
+            steps{
+                script{
+                    if (params.terraformAction == 'apply'){
+                     
+                        sh "cd 02-s3-bucket; terraform apply -input=false tfplan" 
+                    } else if(params.terraformAction == 'destroy'){
+                 
+                        sh "cd 02-s3-bucket; terraform destroy -auto-approve" 
+                    }
+                }
+            }
+        }
+    } 
