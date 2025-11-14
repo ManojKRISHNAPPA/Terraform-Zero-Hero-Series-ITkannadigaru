@@ -24,9 +24,9 @@ pipeline{
         stage('Plan'){
             steps{
                 // Navigate into the checked-out directory and then into the Project-1 subdirectory
-                sh 'cd iac-repo/07-Project-1; terraform init' 
-                sh 'cd iac-repo/07-Project-1; terraform plan -out tfplan'
-                sh 'cd iac-repo/07-Project-1; terraform show -no-color tfplan >> ../tfplan.txt' // Write plan to parent dir for easier access
+                sh 'cd iac-repo/07-Project-01; terraform init' 
+                sh 'cd iac-repo/07-Project-01; terraform plan -out tfplan'
+                sh 'cd iac-repo/07-Project-01; terraform show -no-color tfplan >> ../tfplan.txt' // Write plan to parent dir for easier access
             }
         }
     
@@ -58,10 +58,10 @@ pipeline{
                 script{
                     if (params.terraformAction == 'apply'){
                      
-                        sh "cd iac-repo/07-Project-1; terraform apply -input=false tfplan" 
+                        sh "cd iac-repo/07-Project-01; terraform apply -input=false tfplan" 
                     } else if(params.terraformAction == 'destroy'){
                  
-                        sh "cd iac-repo/07-Project-1; terraform destroy -auto-approve" 
+                        sh "cd iac-repo/07-Project-01; terraform destroy -auto-approve" 
                     }
                 }
             }
