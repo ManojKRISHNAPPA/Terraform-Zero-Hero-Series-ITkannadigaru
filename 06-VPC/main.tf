@@ -16,3 +16,13 @@ resource "aws_subnet" "mysub" {
         Name = "Terraform-sub"
     }
 }
+
+import {
+  to = aws_vpc.myvpc
+  id = "vpc-0fc5baa064d597778"
+}
+
+import {
+  to = aws_subnet.mysub
+  id = "subnet-02867bff74263cbd4"
+}
