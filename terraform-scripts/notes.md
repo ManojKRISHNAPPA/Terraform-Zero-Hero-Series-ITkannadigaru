@@ -47,3 +47,6 @@ TCP	         6
 UDP	         17
 ICMP       	 1
 ALL	         -1
+
+## Architecture of Any Terraform project:
+![alt text](image.png)
